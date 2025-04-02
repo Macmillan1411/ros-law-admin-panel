@@ -15,57 +15,134 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Chapter',
+            name="Chapter",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('description', models.TextField(blank=True)),
-                ('order', models.IntegerField(default=0)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("description", models.TextField(blank=True)),
+                ("order", models.IntegerField(default=0)),
             ],
             options={
-                'ordering': ['order'],
+                "ordering": ["order"],
             },
         ),
         migrations.CreateModel(
-            name='Section',
+            name="Section",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('description', models.TextField(blank=True)),
-                ('order', models.IntegerField(default=0)),
-                ('chapters', models.ManyToManyField(related_name='sections', to='content.chapter')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("description", models.TextField(blank=True)),
+                ("order", models.IntegerField(default=0)),
+                (
+                    "chapters",
+                    models.ManyToManyField(
+                        related_name="sections", to="content.chapter"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['order'],
+                "ordering": ["order"],
             },
         ),
         migrations.CreateModel(
-            name='Subsection',
+            name="Subsection",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('description', models.TextField(blank=True)),
-                ('order', models.IntegerField(default=0)),
-                ('sections', models.ManyToManyField(related_name='subsections', to='content.section')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("description", models.TextField(blank=True)),
+                ("order", models.IntegerField(default=0)),
+                (
+                    "sections",
+                    models.ManyToManyField(
+                        related_name="subsections", to="content.section"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['order'],
+                "ordering": ["order"],
             },
         ),
         migrations.CreateModel(
-            name='QA',
+            name="QA",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255)),
-                ('question_content', models.TextField()),
-                ('answer_content', models.TextField()),
-                ('status', models.CharField(choices=[('draft', 'Draft'), ('in_review', 'In Review'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('published', 'Published')], default='draft', max_length=20)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('moderated_at', models.DateTimeField(blank=True, null=True)),
-                ('is_published', models.BooleanField(default=False)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='created_qas', to=settings.AUTH_USER_MODEL)),
-                ('moderated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='moderated_qas', to=settings.AUTH_USER_MODEL)),
-                ('subsections', models.ManyToManyField(related_name='qa_items', to='content.subsection')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=255)),
+                ("question_content", models.TextField()),
+                ("answer_content", models.TextField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("draft", "Draft"),
+                            ("in_review", "In Review"),
+                            ("approved", "Approved"),
+                            ("rejected", "Rejected"),
+                            ("published", "Published"),
+                        ],
+                        default="draft",
+                        max_length=20,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("moderated_at", models.DateTimeField(blank=True, null=True)),
+                ("is_published", models.BooleanField(default=False)),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="created_qas",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "moderated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="moderated_qas",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "subsections",
+                    models.ManyToManyField(
+                        related_name="qa_items", to="content.subsection"
+                    ),
+                ),
             ],
         ),
     ]

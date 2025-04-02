@@ -33,7 +33,7 @@
                     <a class="nav-link" href="#">Модерация</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'dashboard' %}">Карта каг-бота</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'content:dashboard' %}">Дашборд</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Настройки</a>
@@ -49,24 +49,24 @@
                 {% if user.is_authenticated %}
                     {% if user.role == 'superadmin' %}
                     <li class="nav-item">
-                        <a class="nav-link text-primary" href="{% url 'accounts:pending_approvals' %}">
+                        <a class="nav-link text-primary {% if request.resolver_match.url_name == 'pending_approvals' %}active{% endif %}" href="{% url 'accounts:pending_approvals' %}">
                             <i class="bi bi-person-check"></i> Подтверждение пользователей
                         </a>
                     </li>
                     {% endif %}
                     <li class="nav-item ms-auto">
-                        <a class="nav-link text-danger" href="{% url 'accounts:logout' %}">
+                        <a class="nav-link text-danger {% if request.resolver_match.url_name == 'logout' %}active{% endif %}" href="{% url 'accounts:logout' %}">
                             <i class="bi bi-box-arrow-right"></i> Выйти ({{ user.username }})
                         </a>
                     </li>
                 {% else %}
                     <li class="nav-item ms-auto">
-                        <a class="nav-link" href="{% url 'accounts:login' %}">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'accounts:login' %}">
                             <i class="bi bi-box-arrow-in-right"></i> Войти
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:register' %}">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'register' %}active{% endif %}" href="{% url 'accounts:register' %}">
                             <i class="bi bi-person-plus"></i> Регистрация
                         </a>
                     </li>

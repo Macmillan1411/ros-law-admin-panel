@@ -10,19 +10,6 @@ $(document).ready(function() {
     $('.subsections-container').hide();
     $('.qa-container').hide();
 
-    // Only sho active items based on URL parameters
-    if (activeChapter) {
-        $('[data-id="' + activeChapter + '"]').closest('.card').find('.sections-container').show();
-    }
-
-    if (activeSection) {
-        $('[data-id="' + activeSection + '"]').closest('.card').find('.subsections-container').show();
-    }
-
-    if (activeSubsection) {
-        $('[data-id="' + activeSubsection + '"]').closest('.card').find('.qa-container').show();
-    }
-
     $('.chapter-header').click(function(e) {
         e.preventDefault();
         const chapterId = $(this).data('id');
@@ -78,24 +65,20 @@ $(document).ready(function() {
     });
 
     $('.add-chapter').click(function() {
-
-        alert('Navigate to chapter creation (to be implemented)');
-
+        $('#createChapterModal').modal('show');
     });
 
 
     $('.add-section').click(function() {
         const chapterId = $(this).data('chapter');
-
-        alert('Navigate to section creation for chapter ' + chapterId + ' (to be implemented)');
-
+        $('#sectionChapterId').val(chapterId);
+        $('#createSectionModal').modal('show');
     });
 
     $('.add-subsection').click(function() {
         const sectionId = $(this).data('section');
-
-        alert('Navigate to subsection creation for section ' + sectionId + ' (to be implemented)');
-
+        $('#subsectionSectionId').val(sectionId);
+        $('#createSubsectionModal').modal('show');
     });
 
     $('.add-qa').click(function() {
@@ -103,5 +86,93 @@ $(document).ready(function() {
 
         alert('Navigate to QA creation for subsection ' + subsectionId + ' (to be implemented)');
 
+    });
+
+    $('#submitChapter').click(function() {
+        const form = $('#createChapterForm');
+        const formData = {
+            title: $('#chapterTitle').val(),
+            description: $('#chapterDescription').val(),
+            order: $('#chapterOrder').val(),
+            csrfmiddlewaretoken: form.find('input[name="csrfmiddlewaretoken"]').val()
+        };
+
+        $.ajax({
+            url: '/chapter/create/',
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                $('#createChapterModal').modal('hide');
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                // Handle errors, show validation messages, etc.
+                alert('Произошла ошибка при создании главы. Пожалуйста, проверьте введенные данные.');
+            }
+        });
+    });
+
+    // Clear form when modal is closed
+    $('#createChapterModal').on('hidden.bs.modal', function () {
+        $('#createChapterForm')[0].reset();
+    });
+
+    // Section creation
+    $('#submitSection').click(function() {
+        const form = $('#createSectionForm');
+        const formData = {
+            title: $('#sectionTitle').val(),
+            description: $('#sectionDescription').val(),
+            order: $('#sectionOrder').val(),
+            chapter_id: $('#sectionChapterId').val(),
+            csrfmiddlewaretoken: form.find('input[name="csrfmiddlewaretoken"]').val()
+        };
+
+        $.ajax({
+            url: '/section/create/',
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                $('#createSectionModal').modal('hide');
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('Произошла ошибка при создании раздела. Пожалуйста, проверьте введенные данные.');
+            }
+        });
+    });
+
+    // Subsection creation
+    $('#submitSubsection').click(function() {
+        const form = $('#createSubsectionForm');
+        const formData = {
+            title: $('#subsectionTitle').val(),
+            description: $('#subsectionDescription').val(),
+            order: $('#subsectionOrder').val(),
+            section_id: $('#subsectionSectionId').val(),
+            csrfmiddlewaretoken: form.find('input[name="csrfmiddlewaretoken"]').val()
+        };
+
+        $.ajax({
+            url: '/subsection/create/',
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                $('#createSubsectionModal').modal('hide');
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('Произошла ошибка при создании подраздела. Пожалуйста, проверьте введенные данные.');
+            }
+        });
+    });
+
+    // Clear forms when modals are closed
+    $('#createSectionModal').on('hidden.bs.modal', function () {
+        $('#createSectionForm')[0].reset();
+    });
+
+    $('#createSubsectionModal').on('hidden.bs.modal', function () {
+        $('#createSubsectionForm')[0].reset();
     });
 });
