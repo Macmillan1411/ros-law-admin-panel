@@ -1,5 +1,5 @@
 plans/
 venv/
 __pycache__/
-
-
+.ruff_cache/
+.flake8

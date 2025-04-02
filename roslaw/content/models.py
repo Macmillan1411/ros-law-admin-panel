@@ -11,6 +11,7 @@ class Chapter(models.Model):
 
     class Meta:
         ordering = ['order']
+        verbose_name_plural = 'Главы'
 
 class Section(models.Model):
     title = models.CharField(max_length=200)
@@ -23,6 +24,7 @@ class Section(models.Model):
 
     class Meta:
         ordering = ['order']
+        verbose_name_plural = 'Разделы'
 
 class Subsection(models.Model):
     title = models.CharField(max_length=200)
@@ -35,6 +37,7 @@ class Subsection(models.Model):
 
     class Meta:
         ordering = ['order']
+        verbose_name_plural = 'Подразделы'
 
 class QA(models.Model):
     STATUS_DRAFT = 'draft'
@@ -74,6 +77,9 @@ class QA(models.Model):
     moderated_at = models.DateTimeField(null=True, blank=True)
 
     is_published = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name_plural = 'Вопросы-Ответы'
 
     def __str__(self):
         return self.title
