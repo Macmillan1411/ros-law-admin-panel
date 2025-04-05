@@ -4,7 +4,6 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Chapter, Section, Subsection, QA
 
-
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "content/dashboard.html"
     login_url = "accounts:login"
@@ -13,20 +12,69 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        context.update(
-            {
-                "published_count": QA.objects.filter(
-                    created_by=user, status=QA.STATUS_PUBLISHED
-                ).count(),
-                "in_review_count": QA.objects.filter(
-                    created_by=user, status=QA.STATUS_IN_REVIEW
-                ).count(),
-                "rejected_count": QA.objects.filter(
-                    created_by=user, status=QA.STATUS_REJECTED
-                ).count(),
-                "chapters": Chapter.objects.all().order_by("order"),
-            }
-        )
+        # Get active items from query parameters
+        active_chapter_id = self.request.GET.get('chapter', None)
+        active_section_id = self.request.GET.get('section', None)
+        active_subsection_id = self.request.GET.get('subsection', None)
+
+        chapters = Chapter.objects.all().order_by('order')
+
+        if not active_chapter_id and chapters.exists():
+            active_chapter_id = chapters.first().id
+
+        active_sections = []
+        if active_chapter_id:
+            active_chapter_id = int(active_chapter_id)
+            active_sections = Section.objects.filter(
+                chapters__id=active_chapter_id
+            ).order_by('order')
+
+            if not active_section_id and active_sections.exists():
+                active_section_id = active_sections.first().id
+
+        active_subsections = []
+        if active_section_id:
+            active_section_id = int(active_section_id)
+            active_subsections = Subsection.objects.filter(
+                sections__id=active_section_id
+            ).order_by('order')
+
+            if not active_subsection_id and active_subsections.exists():
+                active_subsection_id = active_subsections.first().id
+
+        context.update({
+            'published_count': QA.objects.filter(created_by=user, status=QA.STATUS_PUBLISHED).count(),
+            'in_review_count': QA.objects.filter(created_by=user, status=QA.STATUS_IN_REVIEW).count(),
+            'rejected_count': QA.objects.filter(created_by=user, status=QA.STATUS_REJECTED).count(),
+            'chapters': chapters,
+            'active_chapter_id': active_chapter_id,
+            'active_section_id': active_section_id,
+            'active_subsection_id': active_subsection_id,
+            'active_sections': active_sections,
+            'active_subsections': active_subsections,
+        })
+
+        if active_subsection_id:
+            active_subsection_id = int(active_subsection_id)
+            if user.is_content_admin() or user.is_moderator():
+                qa_items = QA.objects.filter(
+                    subsections__id=active_subsection_id
+                ).order_by('title')
+            else:
+                qa_items = QA.objects.filter(
+                    subsections__id=active_subsection_id,
+                    status=QA.STATUS_PUBLISHED
+                ).order_by('title')
+
+                user_items = QA.objects.filter(
+                    subsections__id=active_subsection_id,
+                    created_by=user
+                ).exclude(status=QA.STATUS_PUBLISHED)
+
+                if user_items.exists():
+                    qa_items = list(qa_items) + list(user_items)
+
+            context['active_qa_items'] = qa_items
 
         return context
 

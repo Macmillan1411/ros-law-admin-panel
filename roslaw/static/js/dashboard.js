@@ -1,4 +1,13 @@
+console.log('Dashboard.js loading...');
+
 $(document).ready(function() {
+    console.log('Document ready');
+    
+    // Log initial state
+    console.log('Found chapter headers:', $('.chapter-header').length);
+    console.log('Found section headers:', $('.section-header').length);
+    console.log('Found subsection headers:', $('.subsection-header').length);
+
     // Get URL parameters from the data attributes we'll set in the HTML
     const activeChapter = $('#content-data').data('active-chapter');
     const activeSection = $('#content-data').data('active-section');
@@ -10,84 +19,51 @@ $(document).ready(function() {
     $('.subsections-container').hide();
     $('.qa-container').hide();
 
-    $('.chapter-header').click(function(e) {
-        e.preventDefault();
-        const chapterId = $(this).data('id');
+    // Apply animation to hierarchy items
+    applyHierarchyAnimations();
 
-        if (chapterId == activeChapter) {
-
-            $(this).closest('.card').find('.sections-container').slideToggle();
-        } else {
-
-            window.location.href = dashboardUrl + '?chapter=' + chapterId;
-        }
+    // Chapter click handler (for navigation, not accordion)
+    $(document).on('click', '.accordion-button', function(e) {
+        // Don't navigate when clicking accordion buttons - they'll just expand/collapse
+        e.stopPropagation();
     });
 
-
-    $('.section-header').click(function(e) {
-        e.preventDefault();
-        const sectionId = $(this).data('id');
-
-
-        if (sectionId == activeSection) {
-
-            $(this).closest('.card').find('.subsections-container').slideToggle();
-
-            $('.section-header').not(this).closest('.card').find('.subsections-container').slideUp();
-        } else {
-
-            window.location.href = dashboardUrl + '?chapter=' + activeChapter + '&section=' + sectionId;
-        }
-    });
-
-    $('.subsection-header').click(function(e) {
-        e.preventDefault();
-        const subsectionId = $(this).data('id');
-
-        if (subsectionId == activeSubsection) {
-
-            $(this).closest('.card').find('.qa-container').slideToggle();
-
-
-            $('.subsection-header').not(this).closest('.card').find('.qa-container').slideUp();
-        } else {
-
-            window.location.href = dashboardUrl + '?chapter=' + activeChapter + '&section=' + activeSection + '&subsection=' + subsectionId;
-        }
-    });
-
-
-    $('.qa-item').click(function() {
+    // QA item click handler
+    $('.list-group-item[data-id]').click(function(e) {
         const qaId = $(this).data('id');
-
-        alert('Navigate to QA item ' + qaId + ' (to be implemented)');
-
+        if ($(this).find('.badge').length) {
+            e.preventDefault();
+            alert('Navigate to QA item ' + qaId + ' (to be implemented)');
+        }
     });
 
+    // Add Chapter button handler
     $('.add-chapter').click(function() {
         $('#createChapterModal').modal('show');
     });
 
-
+    // Add Section button handler
     $('.add-section').click(function() {
         const chapterId = $(this).data('chapter');
         $('#sectionChapterId').val(chapterId);
         $('#createSectionModal').modal('show');
     });
 
+    // Add Subsection button handler
     $('.add-subsection').click(function() {
         const sectionId = $(this).data('section');
         $('#subsectionSectionId').val(sectionId);
         $('#createSubsectionModal').modal('show');
     });
 
+    // Add QA button handler
     $('.add-qa').click(function() {
         const subsectionId = $(this).data('subsection');
-
-        alert('Navigate to QA creation for subsection ' + subsectionId + ' (to be implemented)');
-
+        $('#qaSubsectionId').val(subsectionId);
+        $('#createQAModal').modal('show');
     });
 
+    // Submit Chapter handler
     $('#submitChapter').click(function() {
         const form = $('#createChapterForm');
         const formData = {
@@ -106,18 +82,12 @@ $(document).ready(function() {
                 window.location.reload();
             },
             error: function(xhr, status, error) {
-                // Handle errors, show validation messages, etc.
                 alert('Произошла ошибка при создании главы. Пожалуйста, проверьте введенные данные.');
             }
         });
     });
 
-    // Clear form when modal is closed
-    $('#createChapterModal').on('hidden.bs.modal', function () {
-        $('#createChapterForm')[0].reset();
-    });
-
-    // Section creation
+    // Submit Section handler
     $('#submitSection').click(function() {
         const form = $('#createSectionForm');
         const formData = {
@@ -142,7 +112,7 @@ $(document).ready(function() {
         });
     });
 
-    // Subsection creation
+    // Submit Subsection handler
     $('#submitSubsection').click(function() {
         const form = $('#createSubsectionForm');
         const formData = {
@@ -167,7 +137,36 @@ $(document).ready(function() {
         });
     });
 
+    // Submit QA handler
+    $('#submitQA').click(function() {
+        const form = $('#createQAForm');
+        const formData = {
+            title: $('#qaTitle').val(),
+            content: $('#qaContent').val(),
+            keywords: $('#qaKeywords').val(),
+            subsection_id: $('#qaSubsectionId').val(),
+            csrfmiddlewaretoken: form.find('input[name="csrfmiddlewaretoken"]').val()
+        };
+
+        $.ajax({
+            url: '/qa/create/',
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                $('#createQAModal').modal('hide');
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('Произошла ошибка при создании вопроса-ответа. Пожалуйста, проверьте введенные данные.');
+            }
+        });
+    });
+
     // Clear forms when modals are closed
+    $('#createChapterModal').on('hidden.bs.modal', function () {
+        $('#createChapterForm')[0].reset();
+    });
+
     $('#createSectionModal').on('hidden.bs.modal', function () {
         $('#createSectionForm')[0].reset();
     });
@@ -175,4 +174,17 @@ $(document).ready(function() {
     $('#createSubsectionModal').on('hidden.bs.modal', function () {
         $('#createSubsectionForm')[0].reset();
     });
+
+    $('#createQAModal').on('hidden.bs.modal', function () {
+        $('#createQAForm')[0].reset();
+    });
+    
+    // Function to apply animations to hierarchy items
+    function applyHierarchyAnimations() {
+        $('.accordion-item').each(function(index) {
+            $(this).css({
+                'animation': 'fadeIn 0.5s ease-in-out ' + (index * 0.1) + 's'
+            });
+        });
+    }
 });
