@@ -12,4 +12,5 @@ urlpatterns = [
         views.SubsectionCreateView.as_view(),
         name="subsection_create",
     ),
+    path("qa/create/", views.QACreateView.as_view(), name="qa_create"),
 ]

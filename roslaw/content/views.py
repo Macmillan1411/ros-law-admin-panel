@@ -1,7 +1,8 @@
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import TemplateView, CreateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import Chapter, Section, Subsection, QA
 
 
@@ -127,3 +128,35 @@ class SubsectionCreateView(LoginRequiredMixin, CreateView):
             self.object.sections.add(section_id)
         messages.success(self.request, "Подраздел успешно создан.")
         return response
+
+
+class QACreateView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        title = request.POST.get("title")
+        content = request.POST.get("content")
+        subsection_id = request.POST.get("subsection_id")
+
+        # Validate input
+        if not title or not content or not subsection_id:
+            return JsonResponse({"error": "Missing required fields"}, status=400)
+
+        try:
+            subsection = Subsection.objects.get(id=subsection_id)
+
+            qa = QA.objects.create(
+                title=title,
+                question_content=title,  # Using title as the question content
+                answer_content=content,
+                status=QA.STATUS_DRAFT,
+                created_by=request.user,
+            )
+
+            qa.subsections.add(subsection)
+
+            messages.success(request, "Вопрос-ответ успешно создан.")
+            return JsonResponse({"success": True, "qa_id": qa.id})
+
+        except Subsection.DoesNotExist:
+            return JsonResponse({"error": "Подраздел не найден"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)

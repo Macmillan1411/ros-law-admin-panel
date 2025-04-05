@@ -1,12 +1,6 @@
-console.log('Dashboard.js loading...');
-
 $(document).ready(function() {
-    console.log('Document ready');
-    
-    // Log initial state
-    console.log('Found chapter headers:', $('.chapter-header').length);
-    console.log('Found section headers:', $('.section-header').length);
-    console.log('Found subsection headers:', $('.subsection-header').length);
+   
+
 
     // Get URL parameters from the data attributes we'll set in the HTML
     const activeChapter = $('#content-data').data('active-chapter');
@@ -139,25 +133,30 @@ $(document).ready(function() {
 
     // Submit QA handler
     $('#submitQA').click(function() {
+        console.log('QA submission clicked');
+
         const form = $('#createQAForm');
         const formData = {
             title: $('#qaTitle').val(),
             content: $('#qaContent').val(),
-            keywords: $('#qaKeywords').val(),
             subsection_id: $('#qaSubsectionId').val(),
             csrfmiddlewaretoken: form.find('input[name="csrfmiddlewaretoken"]').val()
         };
+
+        console.log('Form data:', formData);
 
         $.ajax({
             url: '/qa/create/',
             method: 'POST',
             data: formData,
             success: function(response) {
+                console.log('Success:', response);
                 $('#createQAModal').modal('hide');
                 window.location.reload();
             },
             error: function(xhr, status, error) {
-                alert('Произошла ошибка при создании вопроса-ответа. Пожалуйста, проверьте введенные данные.');
+                console.error('Error details:', xhr.responseText);
+                alert('Произошла ошибка при создании вопроса-ответа: ' + (xhr.responseJSON ? xhr.responseJSON.error : error));
             }
         });
     });
@@ -178,7 +177,7 @@ $(document).ready(function() {
     $('#createQAModal').on('hidden.bs.modal', function () {
         $('#createQAForm')[0].reset();
     });
-    
+
     // Function to apply animations to hierarchy items
     function applyHierarchyAnimations() {
         $('.accordion-item').each(function(index) {
