@@ -34,7 +34,7 @@ class CustomAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.widget.attrs.update({'class': 'form-control'})
+            field.widget.attrs.update({"class": "form-control"})
 
-        self.fields['username'].label = "Имя пользователя"
-        self.fields['password'].label = "Пароль"
+        self.fields["username"].label = "Имя пользователя"
+        self.fields["password"].label = "Пароль"
