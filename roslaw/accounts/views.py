@@ -79,7 +79,7 @@ class PendingApprovalsView(UserPassesTestMixin, ListView):
     def test_func(self):
         return (
             self.request.user.is_authenticated
-            and self.request.user.role == User.SUPERADMIN
+            and (self.request.user.role == User.SUPERADMIN or self.request.user.role == User.ADMIN)
         )
 
     def get_queryset(self):
@@ -95,7 +95,7 @@ class ApproveUserView(UserPassesTestMixin, UpdateView):
     def test_func(self):
         return (
             self.request.user.is_authenticated
-            and self.request.user.role == User.SUPERADMIN
+            and (self.request.user.role == User.SUPERADMIN or self.request.user.role == User.ADMIN)
         )
 
     def get(self, request, *args, **kwargs):

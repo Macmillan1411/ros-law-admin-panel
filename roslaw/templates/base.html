@@ -61,7 +61,7 @@
                         </a>
                     </li>
                     
-                    {% if user.role == 'superadmin' %}
+                    {% if user.role == 'superadmin' or user.role == 'admin'%}
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'pending_approvals' %}active{% endif %}" href="{% url 'accounts:pending_approvals' %}">
                             <i class="bi bi-person-check"></i> Подтверждение пользователей
