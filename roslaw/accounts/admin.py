@@ -10,45 +10,71 @@ class CustomUserAdmin(UserAdmin):
         "get_full_name",
         "email",
         "role",
-        "approved",
+        "sex",
+        "birth_date",
+        "region",
+        "organization",
+        "position",
+        "phone",
         "is_active",
     )
-    list_filter = ("role", "approved", "is_active")
-    search_fields = ("username", "email", "first_name", "last_name", "patronymic")
+    list_filter = ("role", "sex", "region", "organization", "is_active")
+    search_fields = (
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+        "patronymic",
+        "organization",
+        "region",
+    )
 
     fieldsets = UserAdmin.fieldsets + (
-        ("Role Information", {"fields": ("role",)}),
-        ("Personal Information", {"fields": ("patronymic", "position")}),
-        ("Approval Status", {"fields": ("approved", "approval_date")}),
+        ("Роль и статус", {"fields": ("role",)}),
+        (
+            "Личная информация",
+            {
+                "fields": (
+                    "patronymic",
+                    "sex",
+                    "birth_date",
+                    "region",
+                    "address",
+                    "organization",
+                    "position",
+                    "phone",
+                )
+            },
+        ),
     )
 
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ("Role Information", {"fields": ("role",)}),
+        ("Роль и статус", {"fields": ("role",)}),
         (
-            "Personal Information",
-            {"fields": ("first_name", "last_name", "patronymic", "position", "email")},
+            "Личная информация",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "patronymic",
+                    "sex",
+                    "birth_date",
+                    "region",
+                    "address",
+                    "organization",
+                    "position",
+                    "phone",
+                    "email",
+                )
+            },
         ),
-        ("Approval Status", {"fields": ("approved",)}),
     )
 
-    readonly_fields = ("approval_date",)
-
-    actions = ["approve_users"]
-
-    def approve_users(self, request, queryset):
-        from django.utils import timezone
-
-        updated = queryset.update(
-            approved=True, is_active=True, approval_date=timezone.now()
-        )
-        self.message_user(
-            request, f"{updated} пользователей было успешно подтверждено."
-        )
-
-    approve_users.short_description = "Подтвердить выбранных пользователей"
-
     def get_full_name(self, obj):
-        return obj.get_full_name()
+        full_name = f"{obj.last_name} {obj.first_name}"
+        if obj.patronymic:
+            full_name += f" {obj.patronymic}"
+        return full_name.strip()
 
     get_full_name.short_description = "ФИО"
 

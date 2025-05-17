@@ -7,14 +7,17 @@ class ApprovalMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Exclude login, register, logout, and waiting pages from the check
+        # Exclude login, register, logout, waiting pages, and ALL admin URLs
         excluded_paths = [
             reverse("accounts:login"),
             reverse("accounts:register"),
             reverse("accounts:logout"),
             reverse("accounts:waiting_approval"),
-            "/admin/",  # Also exclude Django admin
         ]
+
+        # Exclude all admin URLs
+        if request.path.startswith("/admin/"):
+            return self.get_response(request)
 
         # Check if the path is in excluded paths
         path_excluded = any(request.path.startswith(path) for path in excluded_paths)
@@ -24,8 +27,8 @@ class ApprovalMiddleware:
             request.user.is_authenticated
             and not request.user.approved
             and not path_excluded
-            and not request.user.role == "superadmin"
-        ):  # Superadmins bypass approval
+            and not request.user.is_superuser  # Always allow superusers
+        ):
             return redirect("accounts:waiting_approval")
 
         response = self.get_response(request)

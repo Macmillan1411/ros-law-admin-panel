@@ -3,42 +3,65 @@ from django.db import models
 
 
 class User(AbstractUser):
-    EDITOR = "editor"
-    MODERATOR = "moderator"
     ADMIN = "admin"
-    SUPERADMIN = "superadmin"
+    CURATOR = "curator"
+    MODERATOR = "moderator"
+    SPECIALIST = "specialist"
+    VOLUNTEER = "volunteer"
+    BLOCKED = "blocked"
 
     ROLE_CHOICES = [
-        (EDITOR, "Editor"),
-        (MODERATOR, "Moderator"),
-        (ADMIN, "Admin"),
-        (SUPERADMIN, "Super Admin"),
+        (ADMIN, "Админ"),
+        (CURATOR, "Куратор"),
+        (MODERATOR, "Модератор"),
+        (SPECIALIST, "Специалист"),
+        (VOLUNTEER, "Волонтер"),
+        (BLOCKED, "Заблокированный"),
     ]
 
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=EDITOR)
+    MALE = "M"
+    FEMALE = "F"
+    SEX_CHOICES = [
+        (MALE, "Мужской"),
+        (FEMALE, "Женский"),
+    ]
+
+    # TZ fields
     patronymic = models.CharField(
         max_length=150, blank=True, null=True, verbose_name="Отчество"
+    )
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=SPECIALIST)
+    sex = models.CharField(
+        max_length=1,
+        choices=SEX_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name="Пол",
+    )
+    birth_date = models.DateField(blank=True, null=True, verbose_name="Дата рождения")
+    region = models.CharField(
+        max_length=100, blank=True, null=True, verbose_name="Регион"
+    )
+    address = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Адрес"
+    )
+    organization = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Организация"
     )
     position = models.CharField(
         max_length=255, blank=True, null=True, verbose_name="Должность"
     )
-    approved = models.BooleanField(default=False)
-    approval_date = models.DateTimeField(blank=True, null=True)
+    phone = models.CharField(
+        max_length=30, blank=True, null=True, verbose_name="Телефон"
+    )
+    approved = models.BooleanField(default=False, verbose_name="Одобрен")
+    approval_date = models.DateTimeField(
+        blank=True, null=True, verbose_name="Дата одобрения"
+    )
 
-    def is_content_admin(self):
-        return self.role in [self.ADMIN, self.SUPERADMIN]
+    # The following fields are already present in AbstractUser:
+    # id (user_id), first_name, last_name, email, password, last_login, is_active, date_joined (registration_date)
 
-    def is_moderator(self):
-        return self.role in [self.MODERATOR, self.ADMIN, self.SUPERADMIN]
-
-    def is_editor(self):
-        return self.role in [self.EDITOR, self.ADMIN, self.SUPERADMIN]
-
-    def get_full_name(self):
-        """
-        Return the first_name plus the last_name plus the patronymic, with a space in between.
-        """
-        full_name = f"{self.last_name} {self.first_name}"
-        if self.patronymic:
-            full_name += f" {self.patronymic}"
-        return full_name.strip()
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
